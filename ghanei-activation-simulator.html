@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghanei Intelligent System - Activation Simulator</title>
+    <!-- کتابخانه تولید آفلاین کد QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* بخش انتخاب زبان */
+        .lang-switcher {
+            margin-bottom: 25px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            color: #64748b;
+            transition: all 0.2s;
+            width: auto;
+            margin: 0;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* محفظه اصلی دسکتاپ و موبایل */
+        .workspace {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        /* استایل قاب دسکتاپ */
+        .desktop-window {
+            width: 500px;
+            height: 600px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .window-header {
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .window-body {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* استایل شبیه‌ساز موبایل */
+        .mobile-device {
+            width: 360px;
+            height: 600px;
+            background: #000;
+            border: 12px solid #1e293b;
+            border-radius: 36px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-screen {
+            flex: 1;
+            background: #fff;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-y: auto;
+        }
+
+        .hidden { display: none !important; }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+
+        .btn-support {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid var(--border);
+        }
+
+        .btn-support:hover { background-color: #e2e8f0; }
+
+        .btn-back {
+            background-color: transparent;
+            color: #64748b;
+            border: none;
+            text-decoration: underline;
+            font-size: 13px;
+        }
+
+        .btn-back:hover { color: var(--text); }
+
+        .qr-wrapper {
+            background: #f8fafc;
+            border: 2px dashed var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .status-badge {
+            background-color: #fef2f2;
+            color: var(--danger);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- نوار تغییر زبان (پیش‌فرض: انگلیسی) -->
+    <div class="lang-switcher">
+        <span style="font-size: 13px; color: #64748b;" data-i18n="selectLang">Language / زبان / اللغة:</span>
+        <button class="lang-btn active" onclick="changeLang('en', this)">English</button>
+        <button class="lang-btn" onclick="changeLang('fa', this)">فارسی</button>
+        <button class="lang-btn" onclick="changeLang('ar', this)">العربية</button>
+    </div>
+
+    <div class="workspace">
+        <!-- ================= بخش دسکتاپ ================= -->
+        <div class="desktop-window">
+            <div class="window-header">
+                <span data-i18n="winHeader">Ghanei Intelligent System - Monitoring UI</span>
+                <div class="window-dots">
+                    <div class="dot dot-green"></div>
+                    <div class="dot dot-yellow"></div>
+                    <div class="dot dot-red"></div>
+                </div>
+            </div>
+
+            <div class="window-body">
+                <!-- وضعیت ۱: عدم فعال‌سازی -->
+                <div id="desktop-activation">
+                    <div class="status-badge" data-i18n="deskStatus">You are not registered in the system yet.</div>
+                    <p style="font-size: 14px; line-height: 1.6; color: #475569;" data-i18n="deskDesc">
+                        To quickly activate Ghanei Intelligent System, scan the code below with your mobile:
+                    </p>
+
+                    <div class="qr-wrapper">
+                        <canvas id="qr-canvas"></canvas>
+                        <p style="font-size: 11px; margin: 8px 0 0 0; color: #64748b;" data-i18n="qrCaption">Scan to connect to mobile</p>
+                    </div>
+
+                    <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;" data-i18n="deskWait">
+                        Waiting for final confirmation from your mobile...
+                    </p>
+                    
+                    <button class="btn-support" onclick="contactSupport()" data-i18n="btnSupport">Contact Support</button>
+                    <button class="btn-back" onclick="showBackAlert()" data-i18n="btnBack">Back to previous page</button>
+                </div>
+
+                <!-- وضعیت ۲: داشبورد اصلی -->
+                <div id="desktop-dashboard" class="hidden">
+                    <span style="font-size: 50px;">🎉</span>
+                    <h2 style="color: var(--success); margin-top: 10px;" data-i18n="dashTitle">Welcome!</h2>
+                    <p data-i18n="dashDesc">Ghanei Intelligent System activated successfully and the application is unlocked.</p>
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; width: 80%; margin: 15px 0;">
+                        <strong data-i18n="dashLicense">License Status: Active (Permanent)</strong>
+                    </div>
+                    <button onclick="resetSimulator()" class="btn-support" data-i18n="btnReset">Reset Simulator</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= بخش موبایل ================= -->
+        <div class="mobile-device">
+            <div class="mobile-screen">
+                
+                <!-- مرحله ۱ موبایل: ثبت‌نام -->
+                <div id="mob-step-1" class="mob-step">
+                    <h3 style="color: var(--primary); text-align: center;" data-i18n="mobStep1Title">Register in Ghanei System</h3>
+                    <p style="font-size: 13px; color: #64748b; text-align: center;" data-i18n="mobStep1Desc">Please complete the form below to activate your device.</p>
+                    
+                    <div style="margin-top: 30px;">
+                        <label style="font-size: 12px; display:block; margin-bottom: 5px;" data-i18n="lblName">Full Name:</label>
+                        <input type="text" id="user-name" data-i18n-placeholder="phName" placeholder="e.g., John Doe">
+                        
+                        <label style="font-size: 12px; display:block; margin-bottom: 5px;" data-i18n="lblPhone">Mobile Number:</label>
+                        <input type="tel" id="user-phone" data-i18n-placeholder="phPhone" placeholder="+1 234 567 890">
+                    </div>
+
+                    <div style="margin-top: 40px;">
+                        <button onclick="goToMobStep('mob-step-2')" data-i18n="btnRegCheck">Register & Check Terminal</button>
+                        <button class="btn-support" onclick="contactSupport()" data-i18n="btnSupport">Contact Support</button>
+                        <button class="btn-back" onclick="resetSimulator()" data-i18n="btnCancel">Cancel & Exit</button>
+                    </div>
+                </div>
+
+                <!-- مرحله ۲ موبایل: بررسی پایانه -->
+                <div id="mob-step-2" class="mob-step hidden" style="text-align: center; justify-content: center; display: flex; flex-direction: column; height: 100%;">
+                    <h3 style="margin-top: 50px;" data-i18n="mobStep2Title">Checking terminal status...</h3>
+                    <p style="font-size: 13px; color: #64748b;" data-i18n="mobStep2Desc">Please wait, querying device hardware information.</p>
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- مرحله ۳ موبایل: ثبت پایانه جدید -->
+                <div id="mob-step-3" class="mob-step hidden">
+                    <h3 style="color: var(--danger); text-align: center;" data-i18n="mobStep3Title">Terminal Not Found!</h3>
+                    <p style="font-size: 13px; color: #64748b; text-align: center;" data-i18n="mobStep3Desc">No device registered with your hardware specifications. Please register it:</p>
+
+                    <div style="margin: 25px 0;">
+                        <label style="font-size: 12px; display:block; margin-bottom: 5px;" data-i18n="lblCompany">Device Provider Company:</label>
+                        <input type="text" data-i18n-placeholder="phCompany" placeholder="e.g., Ghanei Co.">
+                        
+                        <label style="font-size: 12px; display:block; margin-bottom: 5px;" data-i18n="lblTermID">Hardware Terminal ID:</label>
+                        <input type="text" value="GH-9982-X" readonly style="background: #f1f5f9; color: #64748b;">
+                    </div>
+
+                    <div>
+                        <button onclick="completeMobileProcess()" data-i18n="btnFinalReg">Final Register & Activate</button>
+                        <button class="btn-support" onclick="contactSupport()" data-i18n="btnSupport">Contact Support</button>
+                        <button class="btn-back" onclick="goToMobStep('mob-step-1')" data-i18n="btnBackMob">Back to previous step</button>
+                    </div>
+                </div>
+
+                <!-- مرحله ۴ موبایل: موفقیت -->
+                <div id="mob-step-4" class="mob-step hidden" style="text-align: center; padding-top: 40px;">
+                    <span style="font-size: 60px; color: var(--success);">✓</span>
+                    <h3 style="color: var(--success);" data-i18n="mobStep4Title">Activation Successful!</h3>
+                    <p style="font-size: 13px; color: #64748b; line-height: 1.6;" data-i18n="mobStep4Desc">
+                        Your user and terminal info verified. Ghanei desktop app is now unlocked.
+                    </p>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin: 30px 0;">
+                        <p style="font-size: 12px; color: #166534; margin: 0;" data-i18n="mobStep4Sync">Project Synced.</p>
+                    </div>
+                    <button onclick="resetSimulator()" class="btn-support" data-i18n="btnResetMob">Run Scenario Again</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= منطق چندزبانه و شبیه‌ساز ================= -->
+    <script>
+        // زبان جاری سیستم
+        let currentLang = 'en';
+
+        // دیکشنری کامل سه زبانه
+        const i18n = {
+            en: {
+                selectLang: "Language / زبان / اللغة:",
+                winHeader: "Ghanei Intelligent System - Monitoring UI",
+                deskStatus: "You are not registered in the system yet.",
+                deskDesc: "To quickly activate Ghanei Intelligent System, scan the code below with your mobile:",
+                qrCaption: "Scan to connect to mobile",
+                deskWait: "Waiting for final confirmation from your mobile...",
+                btnSupport: "Contact Support",
+                btnBack: "Back to previous page",
+                btnBackMob: "Back to previous step",
+                dashTitle: "Welcome!",
+                dashDesc: "Ghanei Intelligent System activated successfully and the application is unlocked.",
+                dashLicense: "License Status: Active (Permanent)",
+                btnReset: "Reset Simulator",
+                btnResetMob: "Run Scenario Again",
+                mobStep1Title: "Register in Ghanei System",
+                mobStep1Desc: "Please complete the form below to activate your device.",
+                lblName: "Full Name:",
+                phName: "e.g., John Doe",
+                lblPhone: "Mobile Number:",
+                phPhone: "+1 234 567 890",
+                btnRegCheck: "Register & Check Terminal",
+                btnCancel: "Cancel & Exit",
+                mobStep2Title: "Checking terminal status...",
+                mobStep2Desc: "Please wait, querying device hardware information.",
+                mobStep3Title: "Terminal Not Found!",
+                mobStep3Desc: "No device registered with your hardware specifications. Please register it:",
+                lblCompany: "Device Provider Company:",
+                phCompany: "e.g., Ghanei Co.",
+                lblTermID: "Hardware Terminal ID:",
+                btnFinalReg: "Final Register & Activate",
+                mobStep4Title: "Activation Successful!",
+                mobStep4Desc: "Your user and terminal info verified. Ghanei desktop app is now unlocked.",
+                mobStep4Sync: "Project Synced.",
+                alertSupport: "Support request submitted. Ghanei Intelligent System team will contact you soon.",
+                alertBack: "Returning to system login page..."
+            },
+            fa: {
+                selectLang: "Language / زبان / اللغة:",
+                winHeader: "سیستم هوشمند قانعی - رابط نظارتی",
+                deskStatus: "شما هنوز در سامانه ثبت‌نام نکرده‌اید.",
+                deskDesc: "برای راه‌اندازی سریع سیستم هوشمند قانعی، کد زیر را با موبایل خود اسکن کنید:",
+                qrCaption: "اسکن واقعی جهت اتصال به موبایل",
+                deskWait: "منتظر تایید نهایی از موبایل شما...",
+                btnSupport: "تماس با کارشناس پشتیبانی",
+                btnBack: "بازگشت به صفحه قبلی",
+                btnBackMob: "بازگشت به مرحله قبل",
+                dashTitle: "خوش آمدید!",
+                dashDesc: "سیستم هوشمند قانعی با موفقیت فعال شد و قفل برنامه باز گردید.",
+                dashLicense: "وضعیت لایسنس: فعال (دائمی)",
+                btnReset: "ریست کردن شبیه‌ساز",
+                btnResetMob: "اجرای مجدد سناریو",
+                mobStep1Title: "ثبت‌نام در سیستم قانعی",
+                mobStep1Desc: "لطفاً برای فعال‌سازی دستگاه، فرم زیر را تکمیل کنید.",
+                lblName: "نام و نام خانوادگی:",
+                phName: "مثال: محسن حسینی",
+                lblPhone: "شماره موبایل:",
+                phPhone: "۰۹۱۲۳۴۵۶۷۸۹",
+                btnRegCheck: "ثبت‌نام و بررسی پایانه",
+                btnCancel: "انصراف و خروج",
+                mobStep2Title: "در حال بررسی وضعیت پایانه...",
+                mobStep2Desc: "لطفاً شکیبا باشید، در حال استعلام اطلاعات سخت‌افزاری دستگاه شما هستیم.",
+                mobStep3Title: "پایانه یافت نشد!",
+                mobStep3Desc: "دستگاهی با مشخصات سخت‌افزاری شما ثبت نشده است. لطفاً آن را ثبت کنید:",
+                lblCompany: "نام شرکت تهیه‌کننده دستگاه:",
+                phCompany: "مثال: شرکت قانعی",
+                lblTermID: "شناسه سخت‌افزاری پایانه (Terminal ID):",
+                btnFinalReg: "ثبت نهایی پایانه و فعال‌سازی",
+                mobStep4Title: "فعال‌سازی با موفقیت انجام شد!",
+                mobStep4Desc: "اطلاعات کاربری و پایانه شما تایید شد. هم‌اکنون قفل برنامه دسکتاپ سیستم قانعی باز شده است.",
+                mobStep4Sync: "پروژه همگام‌سازی شد.",
+                alertSupport: "درخواست پشتیبانی شما ثبت شد. به زودی کارشناسان سیستم قانعی با شما تماس خواهند گرفت.",
+                alertBack: "برگشت به صفحه ورود سیستم..."
+            },
+            ar: {
+                selectLang: "Language / زبان / اللغة:",
+                winHeader: "نظام قانعي الذكي - واجهة المراقبة",
+                deskStatus: "أنت لم تقم بالتسجيل في النظام بعد.",
+                deskDesc: "لتنشيط نظام قانعي الذكي بسرعة، امسح الرمز أدناه باستخدام هاتفك المحمول:",
+                qrCaption: "امسح للاتصال بالهاتف المحمول",
+                deskWait: "بانتظار التأكيد النهائي من هاتفك المحمول...",
+                btnSupport: "الاتصال بالدعم الفني",
+                btnBack: "الرجوع إلى الصفحة السابقة",
+                btnBackMob: "الرجوع إلى الخطوة السابقة",
+                dashTitle: "أهلاً بك!",
+                dashDesc: "تم تنشيط نظام قانعي الذكي بنجاح وتم فتح قفل التطبيق.",
+                dashLicense: "حالة الترخيص: نشط (دائم)",
+                btnReset: "إعادة ضبط المحاكي",
+                btnResetMob: "تطبيـق السيناريو مجدداً",
+                mobStep1Title: "التسجيل في نظام قانعي",
+                mobStep1Desc: "يرجى إكمال النموذج أدناه لتنشيط جهازك.",
+                lblName: "الاسم الكامل:",
+                phName: "مثال: أحمد محمد",
+                lblPhone: "رقم الهاتف:",
+                phPhone: "٠٩١٢٣٤٥٦٧٨٩",
+                btnRegCheck: "التسجيل وفحص المحطة",
+                btnCancel: "إلغاء وخروج",
+                mobStep2Title: "جاري فحص حالة المحطة...",
+                mobStep2Desc: "يرجى الانتظار، جاري الاستعلام عن معلومات أجهزة نظامك.",
+                mobStep3Title: "لم يتم العثور على المحطة!",
+                mobStep3Desc: "لا يوجد جهاز مسجل بمواصفات أجهزتك. يرجى تسجيله:",
+                lblCompany: "شركة مزود الجهاز:",
+                phCompany: "مثال: شركة قانعي",
+                lblTermID: "معرف المحطة (Terminal ID):",
+                btnFinalReg: "التسجيل النهائي والتنشيط",
+                mobStep4Title: "تم التنشيط بنجاح!",
+                mobStep4Desc: "تم التحقق من معلومات المستخدم والمحطة. تم الآن فتح تطبيق قانعي المكتبي.",
+                mobStep4Sync: "تمت مزامنة المشروع.",
+                alertSupport: "تم تقديم طلب الدعم. سيتصل بك فريق نظام قانعي الذكي قريباً.",
+                alertBack: "العودة إلى صفحة الدخول..."
+            }
+        };
+
+        // تابع تغییر زبان و جهت صفحه
+        function changeLang(lang, btnElement) {
+            currentLang = lang;
+            
+            // تنظیم جهت راست به چپ یا چپ به راست
+            document.documentElement.setAttribute('dir', (lang === 'fa' || lang === 'ar') ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', lang);
+
+            // بروزرسانی استایل دکمه‌های انتخاب زبان
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            // جایگزینی متون بر اساس زبان انتخاب شده
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    element.innerText = i18n[lang][key];
+                }
+            });
+
+            // جایگزینی placeholder ها
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (i18n[lang][key]) {
+                    element.setAttribute('placeholder', i18n[lang][key]);
+                }
+            });
+        }
+
+        // رندر کد QR
+        window.onload = function() {
+            try {
+                new QRious({
+                    element: document.getElementById('qr-canvas'),
+                    value: 'https://avantfs.cloud/register',
+                    size: 150,
+                    background: '#ffffff',
+                    foreground: '#0284c7'
+                });
+            } catch(e) {
+                console.log("Error loading QR library.");
+            }
+            // اجرای پیش‌فرض زبان انگلیسی
+            changeLang('en', document.querySelector('.lang-btn.active'));
+        };
+
+        function goToMobStep(stepId) {
+            document.querySelectorAll('.mob-step').forEach(step => step.classList.add('hidden'));
+            document.getElementById(stepId).classList.remove('hidden');
+
+            if (stepId === 'mob-step-2') {
+                setTimeout(function() {
+                    goToMobStep('mob-step-3');
+                }, 1500);
+            }
+        }
+
+        function completeMobileProcess() {
+            goToMobStep('mob-step-4');
+            setTimeout(function() {
+                document.getElementById('desktop-activation').classList.add('hidden');
+                document.getElementById('desktop-dashboard').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function contactSupport() {
+            alert(i18n[currentLang].alertSupport);
+        }
+
+        function showBackAlert() {
+            alert(i18n[currentLang].alertBack);
+        }
+
+        function resetSimulator() {
+            document.getElementById('desktop-dashboard').classList.add('hidden');
+            document.getElementById('desktop-activation').classList.remove('hidden');
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-phone').value = '';
+            goToMobStep('mob-step-1');
+        }
+    </script>
+</body>
+</html>
